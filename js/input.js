@@ -32,14 +32,14 @@
       this.device = 'kb';
       this.onDevice = null;
       this.stickR = 62;
-      this.tMove = { id: -1, ox: 0, oy: 0, x: 0, y: 0 };
-      this.tAim = { id: -1, ox: 0, oy: 0, x: 0, y: 0, ang: 0 };
+      this.tMove = { id: null, ox: 0, oy: 0, x: 0, y: 0 };
+      this.tAim = { id: null, ox: 0, oy: 0, x: 0, y: 0, ang: 0 };
       this.pad = { on: false, lx: 0, ly: 0, rx: 0, ry: 0, rt: 0, cur: new Array(17).fill(false), prev: new Array(17).fill(false), navX: 0, navY: 0 };
       this.mv = { x: 0, y: 0 };
       // タッチ操作: 'drag' = どこでもなぞった分だけ動く / 'stick' = 左で移動・右で照準
       this.touchMode = 'drag';
       this.touchSens = 1.2;
-      this.drag = { id: -1, x: 0, y: 0, dx: 0, dy: 0 };
+      this.drag = { id: null, x: 0, y: 0, dx: 0, dy: 0 };
       // スマホではタッチイベントで受ける(ブラウザーのスクロールやスワイプに指を奪われないようにする)
       this.useTouchEvents = typeof TouchEvent !== 'undefined' && 'ontouchstart' in window;
 
@@ -69,9 +69,9 @@
       }
     }
     releaseTouches() {
-      this.tMove.id = -1;
-      this.tAim.id = -1;
-      this.drag.id = -1;
+      this.tMove.id = null;
+      this.tAim.id = null;
+      this.drag.id = null;
       this.drag.dx = 0;
       this.drag.dy = 0;
     }
@@ -80,12 +80,12 @@
       this.setDevice('touch');
       if (this.touchMode !== 'stick') {
         const d = this.drag;
-        if (d.id >= 0) return false;
+        if (d.id !== null) return false;
         d.id = id; d.x = x; d.y = y;
         return true;
       }
       const t = x < innerWidth / 2 ? this.tMove : this.tAim;
-      if (t.id >= 0) return false;
+      if (t.id !== null) return false;
       t.id = id;
       t.ox = t.x = x;
       t.oy = t.y = y;
@@ -110,16 +110,16 @@
       return true;
     }
     touchEnd(id) {
-      if (id === this.drag.id) this.drag.id = -1;
-      if (id === this.tMove.id) this.tMove.id = -1;
-      if (id === this.tAim.id) this.tAim.id = -1;
+      if (id === this.drag.id) this.drag.id = null;
+      if (id === this.tMove.id) this.tMove.id = null;
+      if (id === this.tAim.id) this.tAim.id = null;
     }
     onTouchStart(e) {
       e.preventDefault();
       // 画面に残っている指と食い違っていたら(離した通知を取りこぼした場合)握りっぱなしを解除する
       const live = new Set();
       for (let i = 0; i < e.touches.length; i++) live.add(e.touches[i].identifier);
-      for (const t of [this.drag, this.tMove, this.tAim]) if (t.id >= 0 && !live.has(t.id)) t.id = -1;
+      for (const t of [this.drag, this.tMove, this.tAim]) if (t.id !== null && !live.has(t.id)) t.id = null;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         this.touchBegin(t.identifier, t.clientX, t.clientY);
@@ -209,7 +209,7 @@
       if (k.has('KeyW') || k.has('ArrowUp')) y -= 1;
       if (k.has('KeyS') || k.has('ArrowDown')) y += 1;
       if (P.on && (P.lx || P.ly)) { x = P.lx; y = P.ly; }
-      if (this.tMove.id >= 0) {
+      if (this.tMove.id !== null) {
         x = (this.tMove.x - this.tMove.ox) / this.stickR;
         y = (this.tMove.y - this.tMove.oy) / this.stickR;
       }
@@ -224,7 +224,7 @@
       if (P.on && (Math.abs(P.rx) > 0.2 || Math.abs(P.ry) > 0.2)) return Math.atan2(P.ry, P.rx);
       if (this.device === 'touch') {
         const t = this.tAim;
-        if (t.id >= 0) {
+        if (t.id !== null) {
           const dx = t.x - t.ox, dy = t.y - t.oy;
           if (dx * dx + dy * dy > 100) t.ang = Math.atan2(dy, dx);
           return t.ang;
@@ -235,7 +235,7 @@
       return Math.atan2(this.mouse.y - py, this.mouse.x - px);
     }
     firing() {
-      return this.mouse.down || this.pad.rt > 0.3 || this.tAim.id >= 0;
+      return this.mouse.down || this.pad.rt > 0.3 || this.tAim.id !== null;
     }
     hit(action) {
       const list = ACTIONS[action];

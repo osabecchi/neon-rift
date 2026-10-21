@@ -427,7 +427,7 @@
       const stickMode = inp.touchMode === 'stick';
       // スティックは触れている間はその位置に、触れていない間は左下の定位置に薄く表示する
       const place = (el, t, home) => {
-        if (t.id < 0) {
+        if (t.id === null) {
           if (!home) { el.classList.remove('on', 'idle'); return; }
           el.classList.add('on', 'idle');
           el.style.transform = `translate(${home[0]}px, ${home[1]}px)`;
@@ -450,8 +450,8 @@
         $('#stick-l').classList.remove('on', 'idle');
         $('#stick-r').classList.remove('on', 'idle');
         const d = inp.drag;
-        finger.classList.toggle('on', d.id >= 0);
-        if (d.id >= 0) finger.style.transform = `translate(${d.x}px, ${d.y}px)`;
+        finger.classList.toggle('on', d.id !== null);
+        if (d.id !== null) finger.style.transform = `translate(${d.x}px, ${d.y}px)`;
       }
       // 動き出すまで操作のヒントを出す
       const hint = $('#t-hint');
