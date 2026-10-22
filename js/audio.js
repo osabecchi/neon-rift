@@ -210,12 +210,11 @@
     }
     // ユーザー操作の中で呼ぶ
     init() {
-      if (this.ctx) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-        return;
-      }
+      if (this.ctx) { this.unlock(); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
+      // iPhone: マナーモード(消音スイッチ)でもゲームの音を鳴らす(Safari 16.4 以降)
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* 未対応なら何もしない */ }
       let ctx;
       try { ctx = new AC({ latencyHint: 'interactive' }); } catch (e) { return; }
       this.ctx = ctx;
@@ -243,6 +242,21 @@
       this.music = new Music(this);
       this.applyVolume();
       if (this.pendingTrack) { this.music.start(this.pendingTrack); this.pendingTrack = null; }
+      this.unlock();
+    }
+    // 止まっている音を再開する。スマホは指を離した瞬間(touchend / pointerup)の中でないと再開を許可しないので、
+    // そのタイミングでも呼ばれる。iPhone は無音を1回鳴らすと確実に音が出るようになる
+    unlock() {
+      const ctx = this.ctx;
+      if (!ctx || ctx.state === 'running') return;
+      const p = ctx.resume();
+      if (p && p.catch) p.catch(() => {});
+      try {
+        const src = ctx.createBufferSource();
+        src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch (e) { /* 鳴らせなくても次の操作でまた試す */ }
     }
     impulse(sec, decay) {
       const ctx = this.ctx, rate = ctx.sampleRate, n = Math.floor(rate * sec);

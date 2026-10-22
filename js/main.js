@@ -119,10 +119,15 @@
       };
       document.body.classList.toggle('touchmode', this.input.device === 'touch');
       addEventListener('resize', () => this.resize());
+      // 音はユーザー操作の中でしか鳴らし始められない。スマホでは指が触れた瞬間(pointerdown)は対象外で、
+      // 指を離した瞬間(touchend / pointerup)だけが許可されるので、そちらでも起動する
       const unlock = () => this.audio.init();
-      addEventListener('pointerdown', unlock, true);
-      addEventListener('keydown', unlock, true);
-      document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'playing') this.pause(); });
+      for (const ev of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) addEventListener(ev, unlock, true);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && this.state === 'playing') this.pause();
+        // 別のアプリから戻ったとき、止められた音を再開する(できなければ次のタップで再開)
+        if (!document.hidden) this.audio.unlock();
+      });
       this.canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); this.fatal(new Error('WebGL context lost')); });
       this.toTitle();
       this.last = performance.now();
@@ -333,7 +338,8 @@
       if (won && res.mode === 'campaign') {
         this.achieve('clear');
         if (g.risk >= 5) this.achieve('risk5');
-        if (g.risk >= s.riskMax && s.riskMax < 5) { s.riskMax = g.risk + 1; unlock = `RISK ${s.riskMax} が解放されました`; }
+        if (g.risk >= 10) this.achieve('risk10');
+        if (g.risk >= s.riskMax && s.riskMax < D.risks.length - 1) { s.riskMax = g.risk + 1; unlock = `RISK ${s.riskMax} が解放されました`; }
       }
       this.save.save();
       res.cores = dCores;

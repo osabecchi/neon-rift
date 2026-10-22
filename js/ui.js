@@ -195,7 +195,7 @@
   <div class="lbl">RISK <span class="dim">— 難しいほどスコアとコアが増える</span></div>
   <div class="riskrow">${D.risks.map((r, i) => `<button data-act="risk:${i}" class="${i === s.risk ? 'sel' : ''}" ${i > s.riskMax ? 'disabled' : ''}>${i === 0 ? '標準' : i}</button>`).join('')}</div>
   <div class="riskdesc"><b>${D.risks[s.risk].name}</b> ${s.risk ? D.risks.slice(1, s.risk + 1).map((r) => r.desc).join(' / ') : '通常の難易度'}<span class="dim"> · スコア ×${(1 + 0.3 * s.risk).toFixed(1)} · コア ×${(1 + 0.25 * s.risk).toFixed(2)}</span></div>
-  ${s.riskMax < 5 ? `<div class="dim small">キャンペーンを RISK ${s.riskMax} でクリアすると RISK ${s.riskMax + 1} が解放されます</div>` : ''}
+  ${s.riskMax < D.risks.length - 1 ? `<div class="dim small">キャンペーンを RISK ${s.riskMax} でクリアすると RISK ${s.riskMax + 1} が解放されます</div>` : ''}
 </div>`;
       this.show('ship', `
 <div class="panel-screen">

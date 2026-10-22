@@ -45,6 +45,9 @@
       try {
         const s = localStorage.getItem(KEY);
         if (s) merge(this.data, JSON.parse(s));
+        // RISK の上限が5だった頃に RISK 5 をクリア済みなら、そのぶん RISK 6 を解放しておく
+        const d = this.data;
+        if (d.ach.risk5 && d.riskMax === 5) d.riskMax = 6;
       } catch (e) {
         this.ok = false;
       }

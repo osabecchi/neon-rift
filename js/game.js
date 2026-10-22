@@ -161,7 +161,7 @@
       s.maxHp = Math.max(1, ship.hp + L('hull') + M('hull') - (perk('glass') ? 2 : 0) - (this.risk >= 5 ? 1 : 0));
       if (this.hasMod('onehp')) s.maxHp = 1;
       s.magnet = 95 * (1 + 0.3 * L('magnet')) * (1 + 0.2 * M('magnet'));
-      s.xp = (1 + 0.08 * L('growth')) * (1 + 0.06 * M('growth')) * (perk('goldrush') ? 1.4 : 1) * (this.hasMod('xpboost') ? 1.5 : 1);
+      s.xp = (1 + 0.08 * L('growth')) * (1 + 0.06 * M('growth')) * (perk('goldrush') ? 1.4 : 1) * (this.hasMod('xpboost') ? 1.5 : 1) * (this.risk >= 9 ? 0.85 : 1);
       s.luck = L('luck') + M('luck') + (this.hasMod('lucky') ? 3 : 0);
       s.rate = gun.rate * (1 + 0.12 * L('rapid')) * (1 + 0.04 * M('rate')) * (od ? 1.4 : 1);
       s.count = gun.count + L('multi');
@@ -318,17 +318,17 @@
       const w = Math.max(1, this.wave), cyc = this.cfg ? this.cfg.cycle : 0;
       let hpM;
       if (def.boss) {
-        hpM = (this.risk >= 5 ? 1.4 : 1) * (this.risk >= 1 ? 1.25 : 1);
+        hpM = (this.risk >= 5 ? 1.4 : 1) * (this.risk >= 10 ? 1.4 : 1) * (this.risk >= 1 ? 1.25 : 1) * (this.risk >= 6 ? 1.3 : 1);
         // キャンペーンではエンドレスより早いウェーブに出るので、その時点の強さに合わせて体力を下げる
         if (this.mode !== 'endless') hpM *= D.CAMPAIGN_BOSS_HP[type] || 1;
         else if (cyc > 0) hpM *= 1.3 * D.hpMult(w) / D.hpMult(w - 20 * cyc);
         e.hpScale = hpM;
       } else if (def.part) hpM = o.hpMult || 1;
-      else hpM = D.hpMult(w) * (this.risk >= 1 ? 1.25 : 1);
+      else hpM = D.hpMult(w) * (this.risk >= 1 ? 1.25 : 1) * (this.risk >= 6 ? 1.3 : 1);
       e.elite = !!o.elite && !def.boss && !def.part;
       e.r = def.r * (e.elite ? 1.35 : 1);
       e.maxHp = e.hp = def.hp * hpM * (e.elite ? 5 : 1);
-      e.speed = def.speed * (1 + Math.min(0.012 * w, 0.3)) * (this.risk >= 2 ? 1.12 : 1) * (e.elite ? 1.08 : 1);
+      e.speed = def.speed * (1 + Math.min(0.012 * w, 0.3)) * (this.risk >= 2 ? 1.12 : 1) * (this.risk >= 8 ? 1.1 : 1) * (e.elite ? 1.08 : 1);
       e.xp = def.xp * (1 + 0.035 * (w - 1)) * (e.elite ? 6 : 1);
       e.score = def.score * (e.elite ? 5 : 1);
       e.col = TYPE_COL[type];
@@ -577,7 +577,7 @@
     eb(x, y, ang, speed, o) {
       const b = this.ebs.get();
       if (!b) return null;
-      const sm = (this.risk >= 2 ? 1.12 : 1) * (this.hasMod('fastbullets') ? 1.3 : 1);
+      const sm = (this.risk >= 2 ? 1.12 : 1) * (this.risk >= 8 ? 1.1 : 1) * (this.hasMod('fastbullets') ? 1.3 : 1);
       speed *= sm;
       b.x = x; b.y = y; b.ang = ang; b.spd = speed; b.vx = Math.cos(ang) * speed; b.vy = Math.sin(ang) * speed;
       b.t = 0; b.life = 9; b.grazed = false; b.went = false;
@@ -747,7 +747,7 @@
         this.dropXp(e.x, e.y, e.xp * (e.xpBonus || 1));
         if (!e.part && !e.boss) {
           const L = s.luck;
-          if (this.rng.chance((0.006 + L * 0.002) * (this.risk >= 4 ? 0.5 : 1))) this.dropItem('heart', e.x, e.y);
+          if (this.rng.chance((0.006 + L * 0.002) * (this.risk >= 4 ? 0.5 : 1) * (this.risk >= 10 ? 0.5 : 1))) this.dropItem('heart', e.x, e.y);
           else if (this.rng.chance(0.0028 + L * 0.001)) this.dropItem('magnet', e.x, e.y);
           else if (this.rng.chance(0.0012)) this.dropItem('nuke', e.x, e.y);
         }

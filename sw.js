@@ -1,6 +1,6 @@
 'use strict';
 /* NEON RIFT — サービスワーカー(ホーム画面のアプリとして入れたときに、オフラインでも起動できるようにする) */
-const CACHE = 'neon-rift-v2';
+const CACHE = 'neon-rift-v3';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './css/style.css',
   './js/core.js', './js/data.js', './js/save.js', './js/audio.js', './js/input.js', './js/sprites.js',

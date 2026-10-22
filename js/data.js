@@ -174,7 +174,7 @@
     const cycle = Math.floor((w - 1) / 20);
     const pool = [];
     for (const [type, fromE, fromC, wf] of UNLOCK) if (w >= (camp ? fromC : fromE)) pool.push({ type, w: wf(w) });
-    const countMult = risk >= 3 ? 1.2 : 1;
+    const countMult = (risk >= 3 ? 1.2 : 1) * (risk >= 7 ? 1.2 : 1);
     return {
       wave: w,
       boss,
@@ -183,7 +183,7 @@
       rate: Math.min(1.6 + 0.42 * w, 11) * countMult,
       maxAlive: Math.min(80 + 14 * w, 400),
       pool,
-      elite: w < 3 ? 0 : Math.min(0.012 + 0.0035 * w, 0.08) * (risk >= 3 ? 2 : 1),
+      elite: w < 3 ? 0 : Math.min(0.012 + 0.0035 * w, 0.08) * (risk >= 3 ? 2 : 1) * (risk >= 7 ? 1.5 : 1),
       formations: w >= 2,
     };
   }
@@ -213,6 +213,11 @@
     { name: 'RISK 3', desc: '敵の数 +20%・精鋭が2倍' },
     { name: 'RISK 4', desc: '回復アイテムが半減' },
     { name: 'RISK 5', desc: 'ボスHP +40%・最大HP -1' },
+    { name: 'RISK 6', desc: '敵のHP さらに +30%' },
+    { name: 'RISK 7', desc: '敵の数 さらに +20%・精鋭 さらに1.5倍' },
+    { name: 'RISK 8', desc: '敵と敵弾の速度 さらに +10%' },
+    { name: 'RISK 9', desc: '獲得経験値 -15%' },
+    { name: 'RISK 10', desc: 'ボスHP さらに +40%・回復アイテム さらに半減' },
   ];
 
   const achievements = [
@@ -238,6 +243,7 @@
     { id: 'score1m', name: 'ミリオン', desc: 'スコア1,000,000を達成', reward: 150 },
     { id: 'endless30', name: '果てなき戦い', desc: 'エンドレスでウェーブ30に到達', reward: 200 },
     { id: 'risk5', name: '命知らず', desc: 'RISK 5でキャンペーンをクリア', reward: 500 },
+    { id: 'risk10', name: '深淵の覇者', desc: 'RISK 10でキャンペーンをクリア', reward: 1000 },
     { id: 'allships', name: '艦隊司令', desc: '全機体を解放', reward: 100 },
   ];
 
